@@ -70,3 +70,43 @@ trimmedData <- hybridRecursive(data = exampleData, minRT = 150, digits = 0)
 # see the top of the data
 head(trimmedData)
 
+## ------------------------------------------------------------------------
+# get the example data that ships with trimr
+data(exampleData)
+
+# pass it to a new variable
+newData <- exampleData
+
+# add a column called "taskSequence" that logs whether the current task was a 
+# repetition or a switch trial (which is currently coded in the "condition")
+# column
+newData$taskSequence <- newData$condition
+
+# add a column called "reward" that logs whether the participant received a 
+# reward or not. Fill it with random entries, just for example. This uses R's
+# "sample" function
+newData$reward <- sample(c("Reward", "NoReward"), nrow(newData), 
+                         replace = TRUE)
+
+# delete the "condition" column
+newData <- subset(newData, select = -condition)
+
+# now let's look at our new data
+head(newData)
+
+## ------------------------------------------------------------------------
+# add a new column called "condition", and fill it with information from both 
+# columns that code for our factors
+newData$condition <- paste(newData$taskSequence, "_", newData$reward, sep = "")
+
+# let's again look at the data
+head(newData)
+
+## ------------------------------------------------------------------------
+# trim the data
+trimmedData <- sdTrim(newData, minRT = 150, sd = 2.5)
+
+# check it worked
+head(trimmedData)
+
+
