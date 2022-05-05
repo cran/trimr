@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="James A. Grange" />
+
+<meta name="date" content="2022-05-03" />
+
+<title>Overview of the trimr package</title>
+
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Overview of the trimr package</h1>
+<h4 class="author">James A. Grange</h4>
+<h4 class="date">2022-05-03</h4>
+
+
+
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p><em>trimr</em> is an R package that implements most commonly-used response time trimming methods, allowing the user to go from a raw data file to a finalised data file ready for inferential statistical analysis.</p>
+<p>The trimming functions fall broadly into three families (together with the function names for each method implemented in <em>trimr</em>):</p>
+<ol style="list-style-type: decimal">
+<li><strong>Absolute Value Criterion:</strong> * absoluteRT</li>
+<li><strong>Standard Deviation Criterion:</strong> * sdTrim</li>
+<li><strong>Recursive / Moving Criterion:</strong> * nonRecursive * modifiedRecursive * hybridRecursive</li>
+</ol>
+</div>
+<div id="using-your-own-data" class="section level2">
+<h2>Using Your Own Data</h2>
+<p>Of course, you would like to use <em>trimr</em> on your own data. Below are some demonstrations on how to use <em>trimr</em> that utilise some data that comes with the package. <strong>In previous versions of trimr your data had to contain columns with the same names used below.</strong> However, you can now specify your own column names. The default values are the old required values meaning no code written for previous versions of trimr will be broken by this change. You can have other columns in your data file (which will just be ignored by <em>trimr</em>).</p>
+</div>
+<div id="example-data" class="section level2">
+<h2>Example Data</h2>
+<p><em>trimr</em> ships with some example data—“exampleData”—that the user can explore the trimming functions with. This data is simulated (i.e., not real), and has data from 32 subjects. This data is from a task switching experiment, where RT and accuracy was recorded for two experimental conditions: Switch, when the task switched from the previous trial, and Repeat, when the task repeated from the previous trial. <strong>(If you have data from a factorial design (i.e., the condition codes are spread over more than one column), then please see the final section of this vignette for how to deal with this in <em>trimr</em>).</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load the trimr package</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(trimr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># activate the data</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(exampleData)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># look at the top of the data</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(exampleData)</span></code></pre></div>
+<pre><code>##   participant condition   rt accuracy
+## 1           1    Switch 1660        1
+## 2           1    Switch  913        1
+## 3           1    Repeat 2312        1
+## 4           1    Repeat  754        1
+## 5           1    Switch 3394        1
+## 6           1    Repeat  930        1</code></pre>
+<p>The exampleData consists of 4 columns:</p>
+<ul>
+<li><strong>participant:</strong> Codes the number of each participant in the experiment</li>
+<li><strong>condition:</strong> In this example, there are two experimental conditions: “Switch”, and “Repeat”.</li>
+<li><strong>rt:</strong> Logs the response time of the participant in milliseconds.<br />
+</li>
+<li><strong>accuracy:</strong> Logs the accuracy of the response. 1 codes a correct response, 0 an error response.</li>
+</ul>
+<p>If these columns had different names from the defaults these can be specified, for example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># perform the trimming</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>trimmedData <span class="ot">&lt;-</span> <span class="fu">absoluteRT</span>(<span class="at">data =</span> exampleData, </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">pptVar =</span> <span class="st">&quot;id&quot;</span>, <span class="at">condVar =</span> <span class="st">&quot;cond&quot;</span>, <span class="at">rtVar =</span> <span class="st">&quot;RT&quot;</span>, <span class="at">accVar =</span> <span class="st">&quot;correct&quot;</span>, </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">minRT =</span> <span class="dv">150</span>, <span class="at">maxRT =</span> <span class="dv">2000</span>, <span class="at">digits =</span> <span class="dv">0</span>)</span></code></pre></div>
+<p>The user can use RTs logged in milliseconds (as here) or in seconds (e.g., 0.657). The user can control the number of decimal places to round the trimmed data to.</p>
+<hr />
+</div>
+<div id="absolute-value-criterion" class="section level2">
+<h2>Absolute Value Criterion</h2>
+<p>The absolute value criterion is the simplest of all of the trimming methods available (except of course for having no trimming). An upper- and lower-criterion is set, and any response time that falls outside of these limits are removed. The function that performs this trimming method in <em>trimr</em> is called <em>absoluteRT</em>.</p>
+<div id="absolutert" class="section level3">
+<h3>absoluteRT</h3>
+<p>In this function, the user decalares lower- and upper-criterion for RT trimming (minRT and maxRT arguments, respectively); RTs outside of these criteria are removed. Note that these criteria must be in the same unit as the RTs are logged in within the data frame being used. The function also has some other important arguments:</p>
+<ul>
+<li><strong>omitErrors:</strong> If the user wishes error trials to be removed from the trimming, this needs to be set to TRUE (it is set to this by default). Alternatively, some users may wish to keep error trials included. Therefore, set this argument to FALSE.</li>
+<li><strong>returnType:</strong> Here, the user can control how the data are returned. “raw” returns trial-level data after the trials with trimmed RTs are removed; “mean” returns calculated mean RT per participant per condition after trimming; “median” returns calculated median RT per participant per condition after trimming. This is set to “mean” by default.</li>
+<li><strong>digits:</strong> How many digits to round the data to after trimming? If the user has a data frame where the RTs are recorded in seconds (e.g., 0.657), this argument can be left at its default value of 3. However, if the data are logged in milliseconds, it might be best to change this argument to zero, so there are no decimal places in the rounding of RTs (e.g., 657).</li>
+</ul>
+<p>In this first example, let’s trim the data using criteria of RTs less than 150 milliseconds and greater than 2,000 milliseconds, with error trials removed before trimming commences. Let’s also return the mean RTs for each condition, and round the data to zero decimal places.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># perform the trimming</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>trimmedData <span class="ot">&lt;-</span> <span class="fu">absoluteRT</span>(<span class="at">data =</span> exampleData, <span class="at">minRT =</span> <span class="dv">150</span>, <span class="at">maxRT =</span> <span class="dv">2000</span>, </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">digits =</span> <span class="dv">0</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># look at the top of the data</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trimmedData)</span></code></pre></div>
+<pre><code>##   participant Switch Repeat
+## 1           1    901    742
+## 2          10    793    669
+## 3          11   1054    943
+## 4          12    880    662
+## 5          13    914    773
+## 6          14   1000    817</code></pre>
+<p>Note that <em>trimr</em> returns a data frame with each row representing each participant in the data file (logged in the participant column), and separate columns for each experimental condition in the data.</p>
+<p>If the user wishes to recive back trial-level data, change the “returnType” argument to “raw”:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># perform the trimming</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>trimmedData <span class="ot">&lt;-</span> <span class="fu">absoluteRT</span>(<span class="at">data =</span> exampleData, <span class="at">minRT =</span> <span class="dv">150</span>, <span class="at">maxRT =</span> <span class="dv">2000</span>, </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">returnType =</span> <span class="st">&quot;raw&quot;</span>, <span class="at">digits =</span> <span class="dv">0</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># look at the top of the data</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trimmedData)</span></code></pre></div>
+<pre><code>##    participant condition   rt accuracy
+## 1            1    Switch 1660        1
+## 2            1    Switch  913        1
+## 4            1    Repeat  754        1
+## 6            1    Repeat  930        1
+## 7            1    Switch 1092        1
+## 11           1    Repeat  708        1</code></pre>
+<p>Now, the data frame returned is in the same shape as the initial data file, but rows containing trimmed RTs are removed.</p>
+<hr />
+</div>
+</div>
+<div id="standard-deviation-criterion" class="section level2">
+<h2>Standard Deviation Criterion</h2>
+<p>This trimming method uses a standard deviation multiplier as the upper criterion for RT removal (users still need to enter a lower-bound manually). For example, this method can be used to trim all RTs 2.5 standard deviations above the mean RT. This trimming can be done per condition (e.g., 2.5 SDs above the mean of each condition), per participant (e.g., 2.5 SDs above the mean of each participant), or per condition per participant (e.g., 2.5 SDs above the mean of each participant for each condition).</p>
+<div id="sdtrim" class="section level3">
+<h3>sdTrim</h3>
+<p>In this function, the user delcares a lower-bound on RT trimming (e.g., 150 milliseconds) and an upper-bound in standard deviations. The value of standard deviation used is set by the SD argument. How this is used varies depending on the values the user passes to two important function arguments:</p>
+<ul>
+<li><strong>perCondition:</strong> If set to TRUE, the trimming will occur above the mean of each experimental condition in the data file.</li>
+<li><strong>perParticipant:</strong> If set to TRUE, the trimming will occur above the mean of each participant in the data file.</li>
+</ul>
+<p>Note that if both are set to TRUE, the trimming will occur per participant per condition (e.g., if SD is set to 2.5, the function will trim RTs 2.5 SDs above the mean RT of each participant for each condition).</p>
+<p>In this example, let’s trim RTs faster than 150 milliseconds, and greater than 3 SDs above the mean of each participant, and return the mean RTs:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># trim the data</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>trimmedData <span class="ot">&lt;-</span> <span class="fu">sdTrim</span>(<span class="at">data =</span> exampleData, <span class="at">minRT =</span> <span class="dv">150</span>, <span class="at">sd =</span> <span class="dv">3</span>, </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">perCondition =</span> <span class="cn">FALSE</span>, <span class="at">perParticipant =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">returnType =</span> <span class="st">&quot;mean&quot;</span>, <span class="at">digits =</span> <span class="dv">0</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># look at the top of the data</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trimmedData)</span></code></pre></div>
+<pre><code>##   participant Switch Repeat
+## 1           1   1042    775
+## 2          10    779    666
+## 3          11   1082    964
+## 4          12    871    652
+## 5          13    914    773
+## 6          14   1034    827</code></pre>
+<p>Now, let’s trim per condition per participant:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># trim the data</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>trimmedData <span class="ot">&lt;-</span> <span class="fu">sdTrim</span>(<span class="at">data =</span> exampleData, <span class="at">minRT =</span> <span class="dv">150</span>, <span class="at">sd =</span> <span class="dv">3</span>, </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">perCondition =</span> <span class="cn">TRUE</span>, <span class="at">perParticipant =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">returnType =</span> <span class="st">&quot;mean&quot;</span>, <span class="at">digits =</span> <span class="dv">0</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># look at the top of the data</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trimmedData)</span></code></pre></div>
+<pre><code>##   participant Switch Repeat
+## 1           1   1099    742
+## 2          10    784    660
+## 3          11   1079    968
+## 4          12    874    644
+## 5          13    911    776
+## 6          14   1038    827</code></pre>
+<hr />
+</div>
+</div>
+<div id="recursive-moving-criterion" class="section level2">
+<h2>Recursive / Moving Criterion</h2>
+<p>Three functions in this family implement the trimming methods proposed &amp; discussed by van Selst &amp; Jolicoeur (1994): <strong>nonRecursive</strong>, <strong>modifiedRecursive</strong>, and <strong>hybridRecursive</strong>. van Selst &amp; Jolicoeur noted that the outcome of many trimming methods is influenced by the sample size (i.e., the number of trials) being considered, thus potentially producing bias. For example, even if RTs are drawn from identical positively-skewed distributions, a “per condition per participant” SD procedure (see sdTrim above) would result in a higher mean estimate for small sample sizes than larger sample sizes. This bias was shown to be removed when a “moving criterion” (MC) was used; this is where the SD used for trimming is adapted to the sample size being considered.</p>
+<div id="nonrecursive" class="section level3">
+<h3>nonRecursive</h3>
+<p>The non-recursive method proposed by van Selst &amp; Jolicoeur (1994) is very similar to the standard deviation method outlined above with the exception that the user does not specify the SD to use as the upper bound. The SD used for the upper bound is rather decided by the sample size of the RTs being passed to the trimming function, with larger SDs being used for larger sample sizes. Also, the function only trims per participant per condition.</p>
+<p>The <strong>nonRecursive</strong> function checks the sample size of the data being passed to it, and looks up the SD criterion required for the data’s sample size. The function looks in a data file contained in <em>trimr</em> called <strong>linearInterpolation</strong>. Should the user wish to see this data file (although the user will never need to access it if they are not interested), type:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load the data</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(linearInterpolation)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># show the first 20 rows (there are 100 in total)</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>linearInterpolation[<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>, ]</span></code></pre></div>
+<pre><code>##    sampleSize modifiedRecursive nonRecursive
+## 1           4             8.000       1.4580
+## 2           5             6.200       1.6800
+## 3           6             5.300       1.8410
+## 4           7             4.800       1.9610
+## 5           8             4.475       2.0500
+## 6           9             4.250       2.1200
+## 7          10             4.110       2.1700
+## 8          11             4.000       2.2200
+## 9          12             3.920       2.2460
+## 10         13             3.850       2.2740
+## 11         14             3.800       2.3100
+## 12         15             3.750       2.3260
+## 13         16             3.728       2.3390
+## 14         17             3.706       2.3520
+## 15         18             3.684       2.3650
+## 16         19             3.662       2.3780
+## 17         20             3.640       2.3910
+## 18         21             3.631       2.3948
+## 19         22             3.622       2.3986
+## 20         23             3.613       2.4024</code></pre>
+<p>Notice there are two columns. This current function will only look in the nonRecursive column; the other column is used by the modifiedRecursive function, discussed below. If the sample size of the current set of data is 16 RTs (for example), the function will use an upper SD criterion of 2.359, and will proceed much like the sdTrim function’s operations.</p>
+<p>Note the user can only be returned the mean trimmed RTs (i.e., there is no “returnType” argument for this function).</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># trim the data</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>trimmedData <span class="ot">&lt;-</span> <span class="fu">nonRecursive</span>(<span class="at">data =</span> exampleData, <span class="at">minRT =</span> <span class="dv">150</span>, <span class="at">digits =</span> <span class="dv">0</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># see the top of the data</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trimmedData)</span></code></pre></div>
+<pre><code>##   participant Switch Repeat
+## 1           1   1053    732
+## 2          10    779    652
+## 3          11   1066    960
+## 4          12    871    638
+## 5          13    900    766
+## 6          14   1018    817</code></pre>
+</div>
+<div id="modifiedrecursive" class="section level3">
+<h3>modifiedRecursive</h3>
+<p>The modifiedRecursive function is more involved than the nonRecursive function. This function performs trimming in cycles. It first temporarily removes the slowest RT from the distribution; then, the mean of the sample is calculated, and the cut-off value is calculated using a certain number of SDs around the mean, with the value for SD being determined by the current sample size. In this procedure, required SD <em>decreases</em> with increased sample size (cf., the nonRecursive method, with <em>increasing</em> SDs with increasing sample size; see the linearInterpolation data file above); see Van Selst and Jolicoeur (1994) for justification.</p>
+<p>The temporarily removed RT is then returned to the sample, and the fastest and slowest RTs are then compared to the cut-off, and removed if they fall outside. This process is then repeated until no outliers remain, or until the sample size drops below four. The SD used for the cut-off is thus <em>dynamically altered</em> based on the sample size of each cycle of the procedure, rather than static like the nonRecursive method.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># trim the data</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>trimmedData <span class="ot">&lt;-</span> <span class="fu">modifiedRecursive</span>(<span class="at">data =</span> exampleData, <span class="at">minRT =</span> <span class="dv">150</span>, <span class="at">digits =</span> <span class="dv">0</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># see the top of the data</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trimmedData)</span></code></pre></div>
+<pre><code>##   participant Switch Repeat
+## 1           1   1047    717
+## 2          10    779    647
+## 3          11   1075    931
+## 4          12    871    638
+## 5          13    911    763
+## 6          14   1014    799</code></pre>
+</div>
+<div id="hybridrecursive" class="section level3">
+<h3>hybridRecursive</h3>
+<p>van Selst and Jolicoeur (1994) reported slight opposing trends of the non-recursive and modified-recursive trimming methods (see page 648, footnote 2). They therefore, in passing, suggested a “hybrid-recursive” method might balance the opposing trends. The hybrid-recursive method simply takes the average of the non-recursive and the modified-recursive methods.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># trim the data</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>trimmedData <span class="ot">&lt;-</span> <span class="fu">hybridRecursive</span>(<span class="at">data =</span> exampleData, <span class="at">minRT =</span> <span class="dv">150</span>, <span class="at">digits =</span> <span class="dv">0</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># see the top of the data</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trimmedData)</span></code></pre></div>
+<pre><code>##   participant Switch Repeat
+## 1           1   1050    724
+## 2          10    779    649
+## 3          11   1071    946
+## 4          12    871    638
+## 5          13    906    764
+## 6          14   1016    808</code></pre>
+</div>
+</div>
+<div id="data-from-factorial-designs" class="section level2">
+<h2>Data from Factorial Designs</h2>
+<p>In the example data that ships with <em>trimr</em>, the RT data comes from just two conditions (Switch vs. Repeat), which are coded in the column “condition”. However, in experimental psychology, factorial designs are prevalent, where RT data comes from more than one independent variable, with each IV having multiple levels. How can <em>trimr</em> deal with this format?</p>
+<p>First, let’s re-shape the exampleData set to how data might be stored from a factorial design. Let there be two IVs, each with two levels:</p>
+<ol style="list-style-type: decimal">
+<li><strong>taskSequence:</strong> Switch vs. Repeat</li>
+<li><strong>reward:</strong> Reward vs. NoReward</li>
+</ol>
+<p>The <em>taskSequence</em> factor is coding whether the task has Switched or Repeated from the task on the previous trial (as before). The <em>reward</em> factor is coding whether the participant was presented with a reward or not on the current trial (presented randomly). Let’s reshape our data frame to match this fictitious experimental scenario:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get the example data that ships with trimr</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(exampleData)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># pass it to a new variable</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>newData <span class="ot">&lt;-</span> exampleData</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># add a column called &quot;taskSequence&quot; that logs whether the current task was a </span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co"># repetition or a switch trial (which is currently coded in the &quot;condition&quot;)</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="co"># column</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>newData<span class="sc">$</span>taskSequence <span class="ot">&lt;-</span> newData<span class="sc">$</span>condition</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="co"># add a column called &quot;reward&quot; that logs whether the participant received a </span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="co"># reward or not. Fill it with random entries, just for example. This uses R&#39;s</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="co"># &quot;sample&quot; function</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>newData<span class="sc">$</span>reward <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">&quot;Reward&quot;</span>, <span class="st">&quot;NoReward&quot;</span>), <span class="fu">nrow</span>(newData), </span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>                         <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="co"># delete the &quot;condition&quot; column</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>newData <span class="ot">&lt;-</span> <span class="fu">subset</span>(newData, <span class="at">select =</span> <span class="sc">-</span>condition)</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="co"># now let&#39;s look at our new data</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newData)</span></code></pre></div>
+<pre><code>##   participant   rt accuracy taskSequence   reward
+## 1           1 1660        1       Switch NoReward
+## 2           1  913        1       Switch   Reward
+## 3           1 2312        1       Repeat   Reward
+## 4           1  754        1       Repeat NoReward
+## 5           1 3394        1       Switch   Reward
+## 6           1  930        1       Repeat NoReward</code></pre>
+<p>This now looks how data typically comes in from a factorial design. Now, to get <em>trimr</em> to work on this, we need to create a new column called “condition”, and to place in this column the levels of all factors in the design. For example, if the first trial in our newData has taskSequence = Switch and reward = NoReward, we would like our condition entry for this trial to read “Switch_NoReward”. This is simple to do using R’s “paste” function. (Note that this code can be adapted to deal with any number of factors.)</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># add a new column called &quot;condition&quot;, and fill it with information from both </span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co"># columns that code for our factors</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>newData<span class="sc">$</span>condition <span class="ot">&lt;-</span> <span class="fu">paste</span>(newData<span class="sc">$</span>taskSequence, <span class="st">&quot;_&quot;</span>, newData<span class="sc">$</span>reward, <span class="at">sep =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="co"># let&#39;s again look at the data</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(newData)</span></code></pre></div>
+<pre><code>##   participant   rt accuracy taskSequence   reward       condition
+## 1           1 1660        1       Switch NoReward Switch_NoReward
+## 2           1  913        1       Switch   Reward   Switch_Reward
+## 3           1 2312        1       Repeat   Reward   Repeat_Reward
+## 4           1  754        1       Repeat NoReward Repeat_NoReward
+## 5           1 3394        1       Switch   Reward   Switch_Reward
+## 6           1  930        1       Repeat NoReward Repeat_NoReward</code></pre>
+<p>Now we can pass this data frame to trimr, and it will work perfectly.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># trim the data</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>trimmedData <span class="ot">&lt;-</span> <span class="fu">sdTrim</span>(newData, <span class="at">minRT =</span> <span class="dv">150</span>, <span class="at">sd =</span> <span class="fl">2.5</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># check it worked</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trimmedData)</span></code></pre></div>
+<pre><code>##   participant Switch_NoReward Switch_Reward Repeat_Reward Repeat_NoReward
+## 1           1        1077.165      1015.703       763.527         701.676
+## 2          10         779.555       767.363       651.778         659.562
+## 3          11        1085.456      1053.368       953.772         959.271
+## 4          12         873.323       864.487       625.261         653.768
+## 5          13         921.102       890.580       766.724         759.025
+## 6          14        1036.329       989.832       821.045         812.476</code></pre>
+<hr />
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p>Van Selst, M. &amp; Jolicoeur, P. (1994). A solution to the effect of sample size on outlier elimination. <em>Quarterly Journal of Experimental Psychology, 47 (A)</em>, 631–650.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

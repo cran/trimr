@@ -13,15 +13,24 @@
 #' of trial-level data or in the form of means/medians for each subject &
 #' condition.
 #'
-#' @param data A data frame. It must contain columns named "participant",
-#' "condition", "rt", and "accuracy". The RT can be in seconds
-#' (e.g., 0.654) or milliseconds (e.g., 654). Condition will consist
-#' of strings. "accuracy" must be 1 for correct and 0 for error
-#' responses.
+#' @param data A data frame with columns containing: participant identification
+#' number ('pptVar'); condition identification, if applicable ('condVar');
+#' response time data ('rtVar'); and accuracy ('accVar'). The RT can be in
+#' seconds (e.g., 0.654) or milliseconds (e.g., 654). Typically, "condition"
+#' will consist of strings. Accuracy must be coded as 1 for correct and 0 for
+#' error responses.
 #' @param minRT The lower criteria for acceptable response time. Must be in
 #' the same form as rt column in data frame (e.g., in seconds OR milliseconds).
 #' All RTs below this value are removed before proceeding with SD trimming.
 #' @param sd The upper criteria for standard deviation cut-off.
+#' @param pptVar The quoted name of the column in the data that identifies
+#' participants.
+#' @param condVar The quoted name of the column in the data that includes the
+#' conditions.
+#' @param rtVar The quoted name of the column in the data containing reaction
+#' times.
+#' @param accVar The quoted name of the column in the data containing accuracy,
+#' coded as 0 or 1 for incorrect and correct trial, respectively.
 #' @param perCondition Set to TRUE if the user wishes the trimming to occur per
 #' condition of the experimental design.
 #' @param perParticipant Set to TRUE if the user wishes the trimming to occur
@@ -46,8 +55,18 @@
 #' @importFrom stats median sd
 #'
 #' @export
-sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
-                   omitErrors = TRUE, returnType = "mean", digits = 3){
+sdTrim <- function(data,
+                   minRT,
+                   sd,
+                   pptVar = "participant",
+                   condVar = "condition",
+                   rtVar = "rt",
+                   accVar = "accuracy",
+                   perCondition = TRUE,
+                   perParticipant = TRUE,
+                   omitErrors = TRUE,
+                   returnType = "mean",
+                   digits = 3) {
 
   ###-------------
   if(perCondition == FALSE & perParticipant == FALSE){
@@ -56,29 +75,29 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
 
     # remove errors if the user has asked for it
     if(omitErrors == TRUE){
-      trimmedData <- subset(data, data$accuracy == 1)
+      trimmedData <- data[data[[accVar]] == 1, ]
     } else {
       trimmedData <- data
     }
 
     # get the list of participant numbers
-    participant <- sort(unique(trimmedData$participant))
+    participant <- unique(data[[pptVar]])
 
     # get the list of experimental conditions
-    conditionList <- unique(trimmedData$condition)
+    conditionList <- unique(data[, condVar])
 
-    # trim the data to remove trials below minRT
-    trimmedData <- subset(trimmedData, trimmedData$rt > minRT)
+    # trim the data
+    trimmedData <- trimmedData[trimmedData[[rtVar]] > minRT, ]
 
     # what is the mean & SD of the whole group's data?
-    meanRT <- mean(trimmedData$rt)
-    sdRT <- sd(trimmedData$rt)
+    meanRT <- mean(trimmedData[[rtVar]])
+    sdRT <- sd(trimmedData[[rtVar]])
 
     # what is the cut-off value?
     cutoff <- meanRT + (stDev * sdRT)
 
     # remove these rts
-    trimmedData <- subset(trimmedData, trimmedData$rt < cutoff)
+    trimmedData <- trimmedData[trimmedData[[rtVar]] < cutoff, ]
 
 
     # if the user asked for trial-level data, return immediately to user
@@ -91,17 +110,14 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
     if(returnType == "mean"){
 
       # ready the final data set
-      finalData <- matrix(0, nrow = length(participant),
-                          ncol = length(conditionList))
+      finalData <- as.data.frame(matrix(0, nrow = length(participant),
+                                        ncol = length(conditionList)))
 
       # give the columns the condition names
       colnames(finalData) <- conditionList
 
       # add the participant column
       finalData <- cbind(participant, finalData)
-
-      # convert to data frame
-      finalData <- data.frame(finalData)
 
 
       # loop over all conditions, and over all subjects, and find mean RT
@@ -112,8 +128,7 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       for(currCondition in conditionList){
 
         # get the current condition's data
-        tempData <- subset(trimmedData, trimmedData$condition == currCondition)
-
+        tempData <- trimmedData[trimmedData[[condVar]] == currCondition, ]
 
 
         #now loop over all participants
@@ -122,11 +137,11 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
         for(currParticipant in participant){
 
           # get that participant's data
-          participantData <- subset(tempData,
-                                    tempData$participant == currParticipant)
+          participantData <- tempData[tempData[[pptVar]] == currParticipant, ]
 
           # calculate & store their mean response time
-          finalData[i, j] <- round(mean(participantData$rt), digits = digits)
+          finalData[i, j] <- round(mean(participantData[[rtVar]]),
+                                   digits = digits)
 
           # update participant counter
           i <- i + 1
@@ -147,17 +162,14 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
     if(returnType == "median"){
 
       # ready the final data set
-      finalData <- matrix(0, nrow = length(participant),
-                          ncol = length(conditionList))
+      finalData <- as.data.frame(matrix(0, nrow = length(participant),
+                                        ncol = length(conditionList)))
 
       # give the columns the condition names
       colnames(finalData) <- conditionList
 
       # add the participant column
       finalData <- cbind(participant, finalData)
-
-      # convert to data frame
-      finalData <- data.frame(finalData)
 
 
       # loop over all conditions, and over all subjects, and find mean RT
@@ -168,7 +180,7 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       for(currCondition in conditionList){
 
         # get the current condition's data
-        tempData <- subset(trimmedData, trimmedData$condition == currCondition)
+        tempData <- trimmedData[trimmedData[[condVar]] == currCondition, ]
 
 
         #now loop over all participants
@@ -177,16 +189,15 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
         for(currParticipant in participant){
 
           # get that participant's data
-          participantData <- subset(tempData,
-                                    tempData$participant == currParticipant)
+          participantData <- tempData[tempData[[pptVar]] == currParticipant, ]
 
           # calculate & store their mean response time
-          finalData[i, j] <- round(median(participantData$rt), digits = digits)
+          finalData[i, j] <- round(median(participantData[[rtVar]]),
+                                   digits = digits)
 
           # update participant counter
           i <- i + 1
         }
-
 
         # update nCondition counter
         j <- j + 1
@@ -194,6 +205,7 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       } # end of condition loop
 
       return(finalData)
+
     }
 
   } # end of perCell == FALSE & perParticipant == FALSE
@@ -207,19 +219,19 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
 
     # remove errors if the user has asked for it
     if(omitErrors == TRUE){
-      trimmedData <- subset(data, data$accuracy == 1)
+      trimmedData <- data[data[[accVar]] == 1, ]
     } else {
       trimmedData <- data
     }
 
     # get the list of participant numbers
-    participant <- sort(unique(trimmedData$participant))
+    participant <- unique(data[[pptVar]])
 
     # get the list of experimental conditions
-    conditionList <- unique(trimmedData$condition)
+    conditionList <- unique(data[, condVar])
 
-    # trim the data to remove trials below minRT
-    trimmedData <- subset(trimmedData, trimmedData$rt > minRT)
+    # trim the data
+    trimmedData <- trimmedData[trimmedData[[rtVar]] > minRT, ]
 
     ### do "raw"
     if(returnType == "raw"){
@@ -231,13 +243,13 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       for(cond in conditionList){
 
         # get the data, & find cutoff
-        curData <- subset(trimmedData, trimmedData$condition == cond)
-        curMean <- mean(curData$rt)
-        curSD <- sd(curData$rt)
+        curData <- trimmedData[trimmedData[[condVar]] == cond, ]
+        curMean <- mean(curData[[rtVar]])
+        curSD <- sd(curData[[rtVar]])
         curCutoff <- curMean + (stDev * curSD)
 
         # trim the data
-        curData <- subset(curData, curData$rt < curCutoff)
+        curData <- curData[curData[[rtVar]] < curCutoff, ]
 
         # bind the data
         finalData <- rbind(finalData, curData)
@@ -257,13 +269,13 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
 
       for(cond in conditionList){
         # get the data, & find cutoff
-        curData <- subset(trimmedData, trimmedData$condition == cond)
-        curMean <- mean(curData$rt)
-        curSD <- sd(curData$rt)
+        curData <- trimmedData[trimmedData[[condVar]] == cond, ]
+        curMean <- mean(curData[[rtVar]])
+        curSD <- sd(curData[[rtVar]])
         curCutoff <- curMean + (stDev * curSD)
 
         # trim the data
-        curData <- subset(curData, curData$rt < curCutoff)
+        curData <- curData[curData[[rtVar]] < curCutoff, ]
 
         # bind the data
         tempData <- rbind(tempData, curData)
@@ -275,8 +287,8 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
 
       ## now loop over each subject and calculate their average
       # ready the final data set
-      finalData <- matrix(0, nrow = length(participant),
-                          ncol = length(conditionList))
+      finalData <- as.data.frame(matrix(0, nrow = length(participant),
+                                        ncol = length(conditionList)))
 
       # give the columns the condition names
       colnames(finalData) <- conditionList
@@ -284,8 +296,6 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       # add the participant column
       finalData <- cbind(participant, finalData)
 
-      # convert to data frame
-      finalData <- data.frame(finalData)
 
       # loop over conditions & subjects and calculate their average
 
@@ -296,7 +306,7 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       for(curCondition in conditionList){
 
         # get the current condition's data
-        tempData <- subset(trimmedData, trimmedData$condition == curCondition)
+        tempData <- trimmedData[trimmedData[[condVar]] == curCondition, ]
 
         #now loop over all participants
         i <- 1
@@ -304,11 +314,11 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
         for(currParticipant in participant){
 
           # get that participant's data
-          participantData <- subset(tempData,
-                                    tempData$participant == currParticipant)
+          participantData <- tempData[tempData[[pptVar]] == currParticipant, ]
 
           # calculate & store their mean response time
-          finalData[i, j] <- round(mean(participantData$rt), digits = digits)
+          finalData[i, j] <- round(mean(participantData[[rtVar]]),
+                                   digits = digits)
 
           # update participant counter
           i <- i + 1
@@ -332,19 +342,19 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
 
     # remove errors if the user has asked for it
     if(omitErrors == TRUE){
-      trimmedData <- subset(data, data$accuracy == 1)
+      trimmedData <- data[data[[accVar]] == 1, ]
     } else {
       trimmedData <- data
     }
 
     # get the list of participant numbers
-    participant <- sort(unique(trimmedData$participant))
+    participant <- unique(data[[pptVar]])
 
     # get the list of experimental conditions
-    conditionList <- unique(trimmedData$condition)
+    conditionList <- unique(data[, condVar])
 
-    # trim the data to remove trials below minRT
-    trimmedData <- subset(trimmedData, trimmedData$rt > minRT)
+    # trim the data
+    trimmedData <- trimmedData[trimmedData[[rtVar]] > minRT, ]
 
 
     ### do "raw"
@@ -357,15 +367,15 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       for(currSub in participant){
 
         # get the current subject's data
-        curData <- subset(trimmedData, trimmedData$participant == currSub)
+        curData <- trimmedData[trimmedData[[pptVar]] == currSub, ]
 
         # find their mean, sd, & cutoff
-        curMean <- mean(curData$rt)
-        curSD <- sd(curData$rt)
+        curMean <- mean(curData[[rtVar]])
+        curSD <- sd(curData[[rtVar]])
         curCutoff <- curMean + (stDev * curSD)
 
         # trim the data
-        curData <- subset(curData, curData$rt < curCutoff)
+        curData <- curData[curData[[rtVar]] < curCutoff, ]
 
         # bind the data
         finalData <- rbind(finalData, curData)
@@ -385,15 +395,15 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       for(currSub in participant){
 
         # get the current subject's data
-        curData <- subset(trimmedData, trimmedData$participant == currSub)
+        curData <- trimmedData[trimmedData[[pptVar]] == currSub, ]
 
         # find their mean, sd, & cutoff
-        curMean <- mean(curData$rt)
-        curSD <- sd(curData$rt)
+        curMean <- mean(curData[[rtVar]])
+        curSD <- sd(curData[[rtVar]])
         curCutoff <- curMean + (stDev * curSD)
 
         # trim the data
-        curData <- subset(curData, curData$rt < curCutoff)
+        curData <- curData[curData[[rtVar]] < curCutoff, ]
 
         # bind the data
         tempData <- rbind(tempData, curData)
@@ -404,8 +414,8 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       tempData <- NULL
 
       # ready the final data set
-      finalData <- matrix(0, nrow = length(participant),
-                          ncol = length(conditionList))
+      finalData <- as.data.frame(matrix(0, nrow = length(participant),
+                                        ncol = length(conditionList)))
 
       # give the columns the condition names
       colnames(finalData) <- conditionList
@@ -425,7 +435,7 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       for(curCondition in conditionList){
 
         # get the current condition's data
-        tempData <- subset(trimmedData, trimmedData$condition == curCondition)
+        tempData <- trimmedData[trimmedData[[condVar]] == curCondition, ]
 
         #now loop over all participants
         i <- 1
@@ -433,11 +443,11 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
         for(currParticipant in participant){
 
           # get that participant's data
-          participantData <- subset(tempData,
-                                    tempData$participant == currParticipant)
+          participantData <- tempData[tempData[[pptVar]] == currParticipant, ]
 
           # calculate & store their mean response time
-          finalData[i, j] <- round(mean(participantData$rt), digits = digits)
+          finalData[i, j] <- round(mean(participantData[[rtVar]]),
+                                   digits = digits)
 
           # update participant counter
           i <- i + 1
@@ -462,15 +472,15 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       for(currSub in participant){
 
         # get the current subject's data
-        curData <- subset(trimmedData, trimmedData$participant == currSub)
+        curData <- trimmedData[trimmedData[[pptVar]] == currSub, ]
 
         # find their mean, sd, & cutoff
-        curMean <- mean(curData$rt)
-        curSD <- sd(curData$rt)
+        curMean <- mean(curData[[rtVar]])
+        curSD <- sd(curData[[rtVar]])
         curCutoff <- curMean + (stDev * curSD)
 
         # trim the data
-        curData <- subset(curData, curData$rt < curCutoff)
+        curData <- curData[curData[[rtVar]] < curCutoff, ]
 
         # bind the data
         tempData <- rbind(tempData, curData)
@@ -481,8 +491,8 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       tempData <- NULL
 
       # ready the final data set
-      finalData <- matrix(0, nrow = length(participant),
-                          ncol = length(conditionList))
+      finalData <- as.data.frame(matrix(0, nrow = length(participant),
+                                        ncol = length(conditionList)))
 
       # give the columns the condition names
       colnames(finalData) <- conditionList
@@ -490,8 +500,6 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       # add the participant column
       finalData <- cbind(participant, finalData)
 
-      # convert to data frame
-      finalData <- data.frame(finalData)
 
       # loop over conditions & subjects and calculate their average
 
@@ -502,7 +510,7 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       for(curCondition in conditionList){
 
         # get the current condition's data
-        tempData <- subset(trimmedData, trimmedData$condition == curCondition)
+        tempData <- trimmedData[trimmedData[[condVar]] == curCondition, ]
 
         #now loop over all participants
         i <- 1
@@ -510,11 +518,11 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
         for(currParticipant in participant){
 
           # get that participant's data
-          participantData <- subset(tempData,
-                                    tempData$participant == currParticipant)
+          participantData <- tempData[tempData[[pptVar]] == currParticipant, ]
 
-          # calculate & store their median response time
-          finalData[i, j] <- round(median(participantData$rt), digits = digits)
+          # calculate & store their mean response time
+          finalData[i, j] <- round(median(participantData[[rtVar]]),
+                                   digits = digits)
 
           # update participant counter
           i <- i + 1
@@ -525,6 +533,7 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       }
 
       return(finalData)
+
     }
 
 
@@ -539,19 +548,19 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
 
     # remove errors if the user has asked for it
     if(omitErrors == TRUE){
-      trimmedData <- subset(data, data$accuracy == 1)
+      trimmedData <- data[data[[accVar]] == 1, ]
     } else {
       trimmedData <- data
     }
 
     # get the list of participant numbers
-    participant <- sort(unique(trimmedData$participant))
+    participant <- unique(data[[pptVar]])
 
     # get the list of experimental conditions
-    conditionList <- unique(trimmedData$condition)
+    conditionList <- unique(data[, condVar])
 
-    # trim the data to remove trials below minRT
-    trimmedData <- subset(trimmedData, trimmedData$rt > minRT)
+    # trim the data
+    trimmedData <- trimmedData[trimmedData[[rtVar]] > minRT, ]
 
     ### do "raw"
     if(returnType == "raw"){
@@ -566,19 +575,19 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
         for(currCond in conditionList){
 
           # get the relevant data
-          tempData <- subset(trimmedData, trimmedData$condition == currCond &
-                               trimmedData$participant == currSub)
+          tempData <- trimmedData[trimmedData[[condVar]] == currCond &
+                                    trimmedData[[pptVar]] == currSub, ]
 
           # find the cutoff
-          curMean <- mean(tempData$rt)
-          curSD <- sd(tempData$rt)
+          curMean <- mean(tempData[[rtVar]])
+          curSD <- sd(tempData[[rtVar]])
           curCutoff <- curMean + (stDev * curSD)
 
           # perform the trim
-          curData <- subset(tempData, tempData$rt < curCutoff)
+          curData <- tempData[tempData[[rtVar]] < curCutoff, ]
 
           # store the data
-          rbind(finalData, curData)
+          finalData <- rbind(finalData, curData)
         }
       }
 
@@ -591,8 +600,8 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
     if(returnType == "mean"){
 
       # ready the final data set
-      finalData <- matrix(0, nrow = length(participant),
-                          ncol = length(conditionList))
+      finalData <- as.data.frame(matrix(0, nrow = length(participant),
+                                        ncol = length(conditionList)))
 
       # give the columns the condition names
       colnames(finalData) <- conditionList
@@ -618,19 +627,20 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
         for(currCond in conditionList){
 
           # get the relevant data
-          tempData <- subset(trimmedData, trimmedData$participant == currSub &
-                               trimmedData$condition == currCond)
+          tempData <- trimmedData[trimmedData[[pptVar]] == currSub &
+                                    trimmedData[[condVar]] == currCond, ]
 
           # find the cutoff
-          curMean <- mean(tempData$rt)
-          curSD <- sd(tempData$rt)
+          curMean <- mean(tempData[[rtVar]])
+          curSD <- sd(tempData[[rtVar]])
           curCutoff <- curMean + (stDev * curSD)
 
           # trim the data
-          curData <- subset(tempData, tempData$rt < curCutoff)
+          curData <- tempData[tempData[[rtVar]] < curCutoff, ]
 
           # find the average, and add to the data frame
-          finalData[i, j] <- round(mean(curData$rt), digits = digits)
+          finalData[i, j] <- round(mean(curData[[rtVar]]),
+                                   digits = digits)
 
           # update condition loop counter
           j <- j + 1
@@ -649,8 +659,8 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
     if(returnType == "median"){
 
       # ready the final data set
-      finalData <- matrix(0, nrow = length(participant),
-                          ncol = length(conditionList))
+      finalData <- as.data.frame(matrix(0, nrow = length(participant),
+                                        ncol = length(conditionList)))
 
       # give the columns the condition names
       colnames(finalData) <- conditionList
@@ -658,8 +668,6 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       # add the participant column
       finalData <- cbind(participant, finalData)
 
-      # convert to data frame
-      finalData <- data.frame(finalData)
 
       # intialise looping variable for subjects
       i <- 1
@@ -676,19 +684,19 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
         for(currCond in conditionList){
 
           # get the relevant data
-          tempData <- subset(trimmedData, trimmedData$participant == currSub &
-                               trimmedData$condition == currCond)
+          tempData <- trimmedData[trimmedData[[pptVar]] == currSub &
+                                    trimmedData[[condVar]] == currCond, ]
 
           # find the cutoff
-          curMean <- mean(tempData$rt)
-          curSD <- sd(tempData$rt)
+          curMean <- mean(tempData[[rtVar]])
+          curSD <- sd(tempData[[rtVar]])
           curCutoff <- curMean + (stDev * curSD)
 
           # trim the data
-          curData <- subset(tempData, tempData$rt < curCutoff)
+          curData <- tempData[tempData[[rtVar]] < curCutoff, ]
 
           # find the average, and add to the data frame
-          finalData[i, j] <- round(median(curData$rt), digits = digits)
+          finalData[i, j] <- round(median(curData[[rtVar]]), digits = digits)
 
           # update condition loop counter
           j <- j + 1
@@ -701,11 +709,7 @@ sdTrim <- function(data, minRT, sd, perCondition = TRUE, perParticipant = TRUE,
       return(finalData)
     }
 
-
   } # end of perCell == TRUE & perParticipant == TRUE
 
-
 } # end of function
-
 #------------------------------------------------------------------------------
-
